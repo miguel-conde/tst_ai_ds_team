@@ -125,12 +125,15 @@ except Exception as e:
 def run_code(code):
     """Execute the given code in the calculator environment.
     
+    The code must always return a `result` variable.
+    
     This method must be used ONLY for different operations that are not covered by the existing methods.
     
     Parameters:
-        code (str): The Python code to execute.
+        code (str): The Python code to execute. It must always return a `result` variable.
     """
     codeExecutor.execute(code)
+    return f"the code: \n\n{code}\n\nhas been executed successfully."
         
 def get_calculator_locals():
     """Get the local variables in the calculator environment.
@@ -158,3 +161,19 @@ def get_calculator_all():
     """
         
     return codeExecutor.get_all()
+
+def print_var(var_name):
+    """Print the value of a variable in the calculator environment.
+    
+    This method prints the value of a variable in the calculator environment.
+    If the variable is not found, it returns a message indicating that the variable
+    was not found.
+    
+    Parameters:
+        var_name (str): The name of the variable to print.
+        
+    Returns:
+        str: The printed output of the variable in the calculator environment.
+    """
+    
+    return codeExecutor.print_var(var_name)

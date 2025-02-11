@@ -1,5 +1,5 @@
 from langgraph.graph import MessagesState
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, AnyMessage
 from langgraph.graph import START, StateGraph
 from langgraph.prebuilt import tools_condition, ToolNode
 from langgraph.checkpoint.memory import MemorySaver
@@ -16,18 +16,37 @@ llm = ChatOpenAI(model="gpt-4o")
 llm_with_tools = llm.bind_tools(tools)
 
 # System message
-sys_msg = SystemMessage(content="You are a helpful assistant tasked with performing EDA.")
+sys_message = """
+"You are a helpful assistant tasked with performing arithmetic operations. 
+You can use the following operations: addition, subtraction, multiplication, division, and power. 
+If you are tasked with running code, you can do so by:
+
+1 - Using 'run_code' 
+2 - Then use `print_var` the times you need to print the variable(s) of your interest
+
+
+As far as now, these are the local variables you can access:
+
+{locals}
+
+And these are the global variables you can access:
+
+{globals}
+"""
+
 
 class CalculatorSchema(MessagesState):
     execution_environment: Dict
 
 # class CalculatorSchema(Dict):
-#     messages: List[Union[AIMessage, HumanMessage, SystemMessage]]
+#     messages: List[AnyMessage]
 #     execution_environment: Dict
 
 # Node
 def assistant(state: CalculatorSchema):
-   return {
+    sys_msg = SystemMessage(content=sys_message.format(locals = codeExecutor.get_locals(), globals = codeExecutor.get_globals()))
+    
+    return {
        "messages": [llm_with_tools.invoke([sys_msg] + state["messages"])],
        "execution_environment": codeExecutor.get_locals(),
        }

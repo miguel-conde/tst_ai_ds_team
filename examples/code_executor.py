@@ -64,9 +64,11 @@ class CodeExecutor():
             str: The printed output of the variable in the REPL environment.
         """
         output_buffer = io.StringIO()
+        stdout_bkup = sys.stdout
         sys.stdout = output_buffer
         print(self.repl.locals.get(var_name, f'Variable "{var_name}" not found'))
-        sys.stdout = sys.__stdout__
+        # sys.stdout = sys.__stdout__
+        sys.stdout = stdout_bkup
         output_string = output_buffer.getvalue()
         output_buffer.close()
         
