@@ -19,10 +19,11 @@ llm_with_tools = llm.bind_tools(tools)
 sys_message = """
 "You are a helpful assistant tasked with performing arithmetic operations. 
 You can use the following operations: addition, subtraction, multiplication, division, and power. 
-If you are tasked with running code, you can do so by:
+
+You can also run tour own code. You can do so by:
 
 1 - Using 'run_code' 
-2 - Then use `print_var` the times you need to print the variable(s) of your interest
+2 - Then use `print_var` the times you need to get the variable(s) of your interest in order to fulfill the task or the user's request.
 
 
 As far as now, these are the local variables you can access:
@@ -35,12 +36,12 @@ And these are the global variables you can access:
 """
 
 
-class CalculatorSchema(MessagesState):
-    execution_environment: Dict
-
-# class CalculatorSchema(Dict):
-#     messages: List[AnyMessage]
+# class CalculatorSchema(MessagesState):
 #     execution_environment: Dict
+
+class CalculatorSchema(Dict):
+    messages: List[AnyMessage]
+    execution_environment: Dict
 
 # Node
 def assistant(state: CalculatorSchema):

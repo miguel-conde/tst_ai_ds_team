@@ -1,6 +1,15 @@
 import io
 import sys
 
+import json
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import base64
+from typing import List, Dict, Any
+
+from tracer import tracer
+
 from langchain_experimental.utilities import PythonREPL
 
 class CodeExecutor():
@@ -81,7 +90,11 @@ class CodeExecutor():
         Returns:
             dict: A dictionary containing the local variables in the REPL environment.
         """
-        return self.repl.locals
+        out = dict()
+        for var in self.repl.locals:
+            out[var] = self.format_variable(self.repl.locals, var)
+        
+        return out
     
     def set_locals(self, locals):
         """
@@ -108,7 +121,11 @@ class CodeExecutor():
         Returns:
             dict: A dictionary containing the global variables.
         """
-        return self.repl.globals
+        out = dict()
+        for var in self.repl.globals:
+            out[var] = self.format_variable(self.repl.globals, var)
+            
+        return out
     
     def set_globals(self, globals):
         """
@@ -159,6 +176,184 @@ class CodeExecutor():
         """
         self.repl.locals = {}
         self.repl.globals = {}
+        
+    def is_json_serializable(self, obj: Any) -> bool:
+        """
+        Verifica si un objeto es serializable a JSON.
+
+        Args:
+            obj (Any): Objeto a verificar.
+
+        Returns:
+            bool: True si el objeto es JSON-serializable, False en caso contrario.
+        """
+        try:
+            json.dumps(obj)
+            return True
+        except (TypeError, OverflowError):
+            return False
+
+    def format_variable(self, environment, var_name: str):
+        """
+        Convierte una variable del entorno a un formato entendible por el LLM.
+        Si la variable es demasiado grande, la convierte parcialmente.
+
+        Parameters:
+        var_name (str): Nombre de la variable a formatear.
+
+        Returns:
+        dict: Representación formateada de la variable o un error si no existe.
+        """
+        if var_name not in environment:
+            tracer.error(f"Variable '{var_name}' no encontrada en el entorno.")
+            return {"error": f"Variable '{var_name}' no encontrada en el entorno."}
+
+        try:
+            tracer.debug(f"Formateando variable '{var_name}'.")
+            variable = environment[var_name]
+            size_in_bytes = sys.getsizeof(variable)
+
+            # Umbral para truncar objetos grandes (por ejemplo, 1 KB)
+            max_size = 1 * 1024
+
+            if isinstance(variable, pd.DataFrame):
+                # Convertir DataFrame a JSON-friendly si es demasiado grande
+                if size_in_bytes > max_size:
+                    truncated_df = variable.head(100).to_dict(orient="records")
+                    return {
+                        "type": "DataFrame",
+                        "size": size_in_bytes,
+                        "truncated": True,
+                        "content": truncated_df
+                    }
+                else:
+                    return {
+                        "type": "DataFrame",
+                        "size": size_in_bytes,
+                        "truncated": False,
+                        "content": variable.to_dict(orient="records")
+                    }
+
+            if isinstance(variable, np.ndarray):
+                # Convertir numpy array a JSON-friendly
+                if size_in_bytes > max_size:
+                    truncated_array = variable[:100].tolist()  # Truncar a los primeros 100 elementos
+                    return {
+                        "type": "ndarray",
+                        "size": size_in_bytes,
+                        "truncated": True,
+                        "content": truncated_array
+                    }
+                else:
+                    return {
+                        "type": "ndarray",
+                        "size": size_in_bytes,
+                        "truncated": False,
+                        "content": variable.tolist()
+                    }
+
+            if isinstance(variable, (set, tuple)):
+                # Convertir set o tuple a lista para JSON-friendly
+                converted = list(variable)
+                if size_in_bytes > max_size:
+                    return {
+                        "type": type(variable).__name__,
+                        "size": size_in_bytes,
+                        "truncated": True,
+                        "content": converted[:100]  # Truncar a los primeros 100 elementos
+                    }
+                return {
+                    "type": type(variable).__name__,
+                    "size": size_in_bytes,
+                    "truncated": False,
+                    "content": converted
+                }
+
+            if isinstance(variable, complex):
+                # Convertir números complejos a representaciones JSON-friendly
+                return {
+                    "type": "complex",
+                    "size": size_in_bytes,
+                    "content": {
+                        "real": variable.real,
+                        "imag": variable.imag
+                    }
+                }
+
+            if hasattr(variable, "evalf") and callable(getattr(variable, "evalf", None)):
+                # Manejar objetos de SymPy convirtiéndolos a string
+                return {
+                    "type": "SymPy",
+                    "size": size_in_bytes,
+                    "content": str(variable)
+                }
+
+            if isinstance(variable, plt.Figure):
+                # Manejar objetos de matplotlib (figuras)
+                import io
+                buffer = io.BytesIO()
+                variable.savefig(buffer, format="png")
+                buffer.seek(0)
+                encoded_image = base64.b64encode(buffer.getvalue()).decode('utf-8')
+                buffer.close()
+                return {
+                    "type": "matplotlib.Figure",
+                    "size": len(encoded_image),
+                    "content": encoded_image,
+                    "format": "base64",
+                    "description": "Imagen codificada en base64 para su representación."
+                }
+
+            if size_in_bytes > max_size:
+                # Si es una lista o diccionario grande, truncarlo
+                if isinstance(variable, (list, dict)):
+                    truncated = variable[:100] if isinstance(variable, list) else dict(list(variable.items())[:100])
+                    return {
+                        "type": type(variable).__name__,
+                        "size": size_in_bytes,
+                        "truncated": True,
+                        "content": truncated
+                    }
+                else:
+                    try:
+                        return {
+                            "type": type(variable).__name__,
+                            "size": size_in_bytes,
+                            "truncated": True,
+                            "content": str(variable)[:1000]  # Truncar cadenas u objetos convertibles
+                        }
+                    except Exception:
+                        return {
+                            "type": type(variable).__name__,
+                            "size": size_in_bytes,
+                            "truncated": True,
+                            "content": f"[Error al convertir {type(variable).__name__} a cadena]"
+                        }
+
+            # Validar si el objeto es JSON-serializable
+            if self.is_json_serializable(variable):
+                return {
+                    "type": type(variable).__name__,
+                    "size": size_in_bytes,
+                    "content": variable
+                }
+            else:
+                # Si no es serializable, devolver su representación en string
+                try:
+                    return {
+                        "type": type(variable).__name__,
+                        "size": size_in_bytes,
+                        "content": str(variable)[:1000]  # Representación truncada en string
+                    }
+                except Exception:
+                    return {
+                        "type": type(variable).__name__,
+                        "size": size_in_bytes,
+                        "content": f"[Error al convertir {type(variable).__name__} a cadena]"
+                    }
+
+        except Exception as e:
+            return {"error": str(e)}
         
         
 ### Usage
