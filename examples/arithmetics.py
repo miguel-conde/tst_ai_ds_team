@@ -125,12 +125,10 @@ except Exception as e:
 def run_code(code):
     """Execute the given code in the calculator environment.
     
-    The code must always return a `result` variable.
-    
-    This method must be used ONLY for different operations that are not covered by the existing methods.
+    This method must be ONLY used for those operations that are not covered by the existing methods.
     
     Parameters:
-        code (str): The Python code to execute. It must always return a `result` variable.
+        code (str): The Python code to execute. 
     """
     codeExecutor.execute(code)
     return f"the code: \n\n{code}\n\nhas been executed successfully."
@@ -141,7 +139,12 @@ def get_calculator_locals():
     Returns:
         dict: A dictionary containing the local variables in the calculator environment.
     """
-    return codeExecutor.get_locals()
+    # return codeExecutor.get_locals()
+    out = {}
+    for key, value in codeExecutor.get_locals().items():
+        if not key.startswith('__'):
+            out[key] = codeExecutor.print_var(key)
+    return out
     
 def get_calculator_globals():
     """Get the global variables in the calculator environment.
@@ -149,7 +152,12 @@ def get_calculator_globals():
     Returns:
         dict: A dictionary containing the global variables in the calculator environment
     """
-    return codeExecutor.get_globals()
+    # return codeExecutor.get_globals()
+    out = {}
+    for key, value in codeExecutor.get_globals().items():
+        if not key.startswith('__'):
+            out[key] = codeExecutor.print_var(key)
+    return out
     
 def get_calculator_all():
     """Get all local and global variables in the calculator environment.
@@ -160,7 +168,8 @@ def get_calculator_all():
             - globals (dict): Global variables in the calculator environment.
     """
         
-    return codeExecutor.get_all()
+    # return codeExecutor.get_all()
+    return get_calculator_locals(), get_calculator_globals()
 
 def print_var(var_name):
     """Print the value of a variable in the calculator environment.

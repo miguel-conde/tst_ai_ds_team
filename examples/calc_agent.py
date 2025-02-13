@@ -42,14 +42,37 @@ And these are the global variables you can access:
 class CalculatorSchema(Dict):
     messages: List[AnyMessage]
     execution_environment: Dict
-
-# Node
+    summary: str
+    
 def assistant(state: CalculatorSchema):
+    
     sys_msg = SystemMessage(content=sys_message.format(locals = codeExecutor.get_locals(), globals = codeExecutor.get_globals()))
     
     return {
        "messages": [llm_with_tools.invoke([sys_msg] + state["messages"])],
-       "execution_environment": codeExecutor.get_locals(),
+       "execution_environment": get_calculator_all(),
+       }
+
+# Node
+def summarizer(state: CalculatorSchema):
+    
+    summary = state.get("summary", "")
+    
+    if summary:
+        sys_message_to_use = sys_message + f"\n\nFinally, this is the summary of conversation earlier: {summary}"
+        
+        # Append summary to any newer messages
+        messages = [SystemMessage(content=sys_message_to_use)] + state["messages"]
+    else:
+        sys_message_to_use = sys_message
+        
+        messages = state["messages"]
+    
+    sys_msg = SystemMessage(content=sys_message_to_use.format(locals = codeExecutor.get_locals(), globals = codeExecutor.get_globals()))
+    
+    return {
+       "messages": [llm_with_tools.invoke([sys_msg] + messages)],
+       "execution_environment": get_calculator_all(),
        }
 
 # Graph

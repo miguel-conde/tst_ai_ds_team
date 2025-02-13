@@ -90,11 +90,12 @@ class CodeExecutor():
         Returns:
             dict: A dictionary containing the local variables in the REPL environment.
         """
-        out = dict()
-        for var in self.repl.locals:
-            out[var] = self.format_variable(self.repl.locals, var)
+        # out = dict()
+        # for var in self.repl.locals:
+        #     out[var] = self.format_variable(self.repl.locals, var)
         
-        return out
+        # return out
+        return self.repl.locals
     
     def set_locals(self, locals):
         """
@@ -121,11 +122,12 @@ class CodeExecutor():
         Returns:
             dict: A dictionary containing the global variables.
         """
-        out = dict()
-        for var in self.repl.globals:
-            out[var] = self.format_variable(self.repl.globals, var)
+        # out = dict()
+        # for var in self.repl.globals:
+        #     out[var] = self.format_variable(self.repl.globals, var)
             
-        return out
+        # return out
+        return self.repl.globals
     
     def set_globals(self, globals):
         """
