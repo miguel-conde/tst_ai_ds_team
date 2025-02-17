@@ -231,3 +231,36 @@
 2025-02-12 07:50:05 [DEBUG] [code_executor:format_variable] - Formateando variable 'data'.
 2025-02-12 07:50:05 [DEBUG] [code_executor:format_variable] - Formateando variable 'df'.
 2025-02-12 07:50:05 [DEBUG] [code_executor:format_variable] - Formateando variable 'result_doubled'.
+2025-02-12 20:37:07 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-12 20:39:02 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-13 19:28:18 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-13 19:30:42 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-13 19:42:39 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-14 20:24:04 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-14 20:34:01 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-14 20:47:29 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-14 20:56:17 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-14 21:01:16 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 06:49:10 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 06:52:46 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 06:57:19 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 06:58:30 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 07:09:34 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 07:10:13 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 08:34:45 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 08:48:56 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 09:14:10 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 09:34:40 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 09:36:09 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 12:15:17 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 12:18:15 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 13:10:13 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 13:11:29 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 13:12:34 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 13:23:56 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 20:37:26 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 20:42:25 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-15 21:09:03 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-16 07:42:07 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-16 07:52:01 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG
+2025-02-16 08:00:04 [INFO] [tracer:<module>] - El nivel de log actual es: DEBUG

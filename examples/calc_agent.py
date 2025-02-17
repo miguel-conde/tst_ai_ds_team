@@ -1,10 +1,10 @@
 from langgraph.graph import MessagesState
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, AnyMessage
-from langgraph.graph import START, StateGraph
+from langgraph.graph import START, END, StateGraph
 from langgraph.prebuilt import tools_condition, ToolNode
 from langgraph.checkpoint.memory import MemorySaver
 
-from typing import Dict, List, Union
+from typing import Dict, List, Union, TypedDict
 
 from langchain_openai import ChatOpenAI
 
@@ -39,10 +39,10 @@ And these are the global variables you can access:
 # class CalculatorSchema(MessagesState):
 #     execution_environment: Dict
 
-class CalculatorSchema(Dict):
-    messages: List[AnyMessage]
+class CalculatorSchema(MessagesState):
+    # messages: List[AnyMessage]
     execution_environment: Dict
-    summary: str
+    # summary: str
     
 def assistant(state: CalculatorSchema):
     
@@ -52,6 +52,19 @@ def assistant(state: CalculatorSchema):
        "messages": [llm_with_tools.invoke([sys_msg] + state["messages"])],
        "execution_environment": get_calculator_all(),
        }
+    
+def should_continue(state: CalculatorSchema):
+    
+    """Return the next node to execute."""
+    
+    messages = state["messages"]
+    
+    # If there are more than six messages, then we summarize the conversation
+    if len(messages) > 6:
+        return "summarizer"
+    
+    # Otherwise we can just go to assistant to continue the conversation
+    return "assistant"
 
 # Node
 def summarizer(state: CalculatorSchema):
@@ -74,9 +87,12 @@ def summarizer(state: CalculatorSchema):
        "messages": [llm_with_tools.invoke([sys_msg] + messages)],
        "execution_environment": get_calculator_all(),
        }
+    
+def null_node(state: CalculatorSchema):
+    pass
 
 # Graph
-builder = StateGraph(MessagesState)
+builder = StateGraph(CalculatorSchema)
 
 # Define nodes: these do the work
 builder.add_node("assistant", assistant)
